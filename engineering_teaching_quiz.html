@@ -1,0 +1,1580 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>NPTEL Engineering Teaching Quiz</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        :root {
+            --primary: #2563eb;
+            --secondary: #1e40af;
+            --accent: #dc2626;
+            --success: #16a34a;
+            --warning: #ea580c;
+            --dark: #0f172a;
+            --light: #f8fafc;
+            --border: #e2e8f0;
+            --text: #1e293b;
+            --text-light: #64748b;
+        }
+
+        html {
+            scroll-behavior: smooth;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: var(--text);
+            line-height: 1.6;
+            min-height: 100vh;
+            padding: 20px;
+        }
+
+        .container {
+            max-width: 900px;
+            margin: 0 auto;
+            background: white;
+            border-radius: 16px;
+            box-shadow: 0 20px 60px rgba(0, 0, 0, 0.3);
+            overflow: hidden;
+        }
+
+        /* Header */
+        .header {
+            background: linear-gradient(135deg, var(--primary) 0%, var(--secondary) 100%);
+            color: white;
+            padding: 40px 30px;
+            text-align: center;
+        }
+
+        .header h1 {
+            font-size: 2.5em;
+            font-weight: 700;
+            margin-bottom: 10px;
+            letter-spacing: -0.5px;
+        }
+
+        .header p {
+            font-size: 1.1em;
+            opacity: 0.95;
+            margin-bottom: 20px;
+        }
+
+        .participant-info {
+            background: rgba(255, 255, 255, 0.15);
+            padding: 20px;
+            border-radius: 12px;
+            margin-bottom: 20px;
+            display: none;
+        }
+
+        .participant-info.show {
+            display: block;
+        }
+
+        .participant-info input {
+            width: 100%;
+            padding: 12px 16px;
+            border: 2px solid rgba(255, 255, 255, 0.3);
+            border-radius: 8px;
+            background: rgba(255, 255, 255, 0.1);
+            color: white;
+            font-size: 1em;
+            margin-bottom: 12px;
+            transition: all 0.3s;
+        }
+
+        .participant-info input::placeholder {
+            color: rgba(255, 255, 255, 0.7);
+        }
+
+        .participant-info input:focus {
+            outline: none;
+            border-color: white;
+            background: rgba(255, 255, 255, 0.2);
+            box-shadow: 0 0 15px rgba(255, 255, 255, 0.2);
+        }
+
+        /* Main Content */
+        .content {
+            padding: 40px;
+        }
+
+        .quiz-start {
+            text-align: center;
+            padding: 60px 20px;
+        }
+
+        .quiz-start.hidden {
+            display: none;
+        }
+
+        .start-button {
+            background: linear-gradient(135deg, var(--primary) 0%, var(--secondary) 100%);
+            color: white;
+            border: none;
+            padding: 18px 50px;
+            font-size: 1.1em;
+            border-radius: 12px;
+            cursor: pointer;
+            transition: all 0.3s;
+            font-weight: 600;
+            box-shadow: 0 10px 30px rgba(37, 99, 235, 0.3);
+            margin-top: 30px;
+        }
+
+        .start-button:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 15px 40px rgba(37, 99, 235, 0.4);
+        }
+
+        .start-button:active {
+            transform: translateY(-1px);
+        }
+
+        .quiz-content {
+            display: none;
+        }
+
+        .quiz-content.active {
+            display: block;
+            animation: fadeIn 0.5s ease-in;
+        }
+
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(10px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        /* Section Headers */
+        .section {
+            margin-bottom: 50px;
+        }
+
+        .section-header {
+            background: linear-gradient(135deg, var(--primary) 0%, var(--secondary) 100%);
+            color: white;
+            padding: 25px 30px;
+            border-radius: 12px;
+            margin-bottom: 30px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .section-header h2 {
+            font-size: 1.8em;
+            font-weight: 700;
+        }
+
+        .section-info {
+            background: rgba(255, 255, 255, 0.2);
+            padding: 8px 16px;
+            border-radius: 8px;
+            font-size: 0.95em;
+            font-weight: 600;
+        }
+
+        /* Questions */
+        .question-block {
+            background: var(--light);
+            padding: 25px;
+            margin-bottom: 25px;
+            border-radius: 12px;
+            border-left: 5px solid var(--primary);
+            transition: all 0.3s;
+        }
+
+        .question-block:hover {
+            box-shadow: 0 5px 20px rgba(0, 0, 0, 0.08);
+            transform: translateX(5px);
+        }
+
+        .question-number {
+            display: inline-block;
+            background: var(--primary);
+            color: white;
+            padding: 6px 14px;
+            border-radius: 20px;
+            font-size: 0.85em;
+            font-weight: 700;
+            margin-bottom: 12px;
+        }
+
+        .question-text {
+            font-size: 1.1em;
+            font-weight: 600;
+            color: var(--text);
+            margin-bottom: 18px;
+            line-height: 1.5;
+        }
+
+        .question-type {
+            display: inline-block;
+            background: var(--warning);
+            color: white;
+            padding: 4px 12px;
+            border-radius: 20px;
+            font-size: 0.8em;
+            font-weight: 600;
+            margin-left: 10px;
+        }
+
+        /* Options */
+        .options {
+            display: flex;
+            flex-direction: column;
+            gap: 12px;
+        }
+
+        .option {
+            display: flex;
+            align-items: center;
+            padding: 15px;
+            background: white;
+            border: 2px solid var(--border);
+            border-radius: 10px;
+            cursor: pointer;
+            transition: all 0.3s;
+            font-size: 1em;
+        }
+
+        .option:hover {
+            border-color: var(--primary);
+            background: rgba(37, 99, 235, 0.05);
+        }
+
+        .option input[type="radio"],
+        .option input[type="checkbox"] {
+            margin-right: 15px;
+            width: 20px;
+            height: 20px;
+            cursor: pointer;
+            accent-color: var(--primary);
+        }
+
+        .option.selected {
+            background: rgba(37, 99, 235, 0.1);
+            border-color: var(--primary);
+        }
+
+        /* Match the Following */
+        .match-container {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 20px;
+            margin-top: 15px;
+        }
+
+        .match-column {
+            display: flex;
+            flex-direction: column;
+            gap: 12px;
+        }
+
+        .match-column h4 {
+            font-size: 0.95em;
+            font-weight: 700;
+            color: var(--primary);
+            margin-bottom: 10px;
+        }
+
+        .match-pair {
+            display: flex;
+            gap: 15px;
+            align-items: center;
+        }
+
+        .match-item {
+            flex: 1;
+            padding: 12px;
+            background: white;
+            border: 2px solid var(--border);
+            border-radius: 8px;
+            font-size: 0.95em;
+        }
+
+        .match-item select {
+            width: 100%;
+            padding: 10px;
+            border: 2px solid var(--border);
+            border-radius: 8px;
+            background: white;
+            cursor: pointer;
+            font-size: 0.95em;
+        }
+
+        .match-item select:focus {
+            outline: none;
+            border-color: var(--primary);
+            box-shadow: 0 0 8px rgba(37, 99, 235, 0.2);
+        }
+
+        /* Navigation */
+        .button-group {
+            display: flex;
+            gap: 15px;
+            justify-content: center;
+            margin-top: 50px;
+            padding-top: 30px;
+            border-top: 2px solid var(--border);
+        }
+
+        .btn {
+            padding: 14px 30px;
+            border: none;
+            border-radius: 10px;
+            font-size: 1em;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s;
+        }
+
+        .btn-primary {
+            background: var(--primary);
+            color: white;
+            flex: 1;
+            max-width: 200px;
+        }
+
+        .btn-primary:hover {
+            background: var(--secondary);
+            transform: translateY(-2px);
+            box-shadow: 0 8px 20px rgba(37, 99, 235, 0.3);
+        }
+
+        .btn-secondary {
+            background: var(--border);
+            color: var(--text);
+            flex: 1;
+            max-width: 200px;
+        }
+
+        .btn-secondary:hover {
+            background: #cbd5e1;
+            transform: translateY(-2px);
+        }
+
+        /* Progress */
+        .progress-bar {
+            height: 8px;
+            background: var(--border);
+            border-radius: 10px;
+            margin: 20px 0;
+            overflow: hidden;
+        }
+
+        .progress-fill {
+            height: 100%;
+            background: linear-gradient(90deg, var(--primary) 0%, var(--secondary) 100%);
+            transition: width 0.3s ease;
+            width: 0%;
+        }
+
+        .progress-text {
+            font-size: 0.9em;
+            color: var(--text-light);
+            text-align: center;
+            margin-bottom: 15px;
+            font-weight: 600;
+        }
+
+        /* Results */
+        .results {
+            display: none;
+            text-align: center;
+            padding: 60px 30px;
+        }
+
+        .results.show {
+            display: block;
+            animation: fadeIn 0.5s ease-in;
+        }
+
+        .results h2 {
+            font-size: 2.5em;
+            margin-bottom: 20px;
+            color: var(--primary);
+        }
+
+        .score-display {
+            background: linear-gradient(135deg, var(--primary) 0%, var(--secondary) 100%);
+            color: white;
+            padding: 40px;
+            border-radius: 12px;
+            margin: 30px 0;
+            font-size: 3em;
+            font-weight: 700;
+            letter-spacing: 2px;
+        }
+
+        .result-message {
+            font-size: 1.3em;
+            color: var(--text);
+            margin: 20px 0;
+            font-weight: 600;
+        }
+
+        .result-details {
+            background: var(--light);
+            padding: 20px;
+            border-radius: 10px;
+            margin: 20px 0;
+            display: grid;
+            grid-template-columns: 1fr 1fr 1fr;
+            gap: 20px;
+            text-align: center;
+        }
+
+        .detail-item {
+            padding: 15px;
+        }
+
+        .detail-label {
+            color: var(--text-light);
+            font-size: 0.9em;
+            margin-bottom: 5px;
+        }
+
+        .detail-value {
+            font-size: 1.8em;
+            font-weight: 700;
+            color: var(--primary);
+        }
+
+        .restart-button {
+            background: linear-gradient(135deg, var(--primary) 0%, var(--secondary) 100%);
+            color: white;
+            border: none;
+            padding: 16px 40px;
+            font-size: 1.1em;
+            border-radius: 10px;
+            cursor: pointer;
+            margin-top: 30px;
+            font-weight: 600;
+            transition: all 0.3s;
+            box-shadow: 0 10px 30px rgba(37, 99, 235, 0.3);
+        }
+
+        .restart-button:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 15px 40px rgba(37, 99, 235, 0.4);
+        }
+
+        /* Responsive */
+        @media (max-width: 768px) {
+            .header h1 {
+                font-size: 1.8em;
+            }
+
+            .content {
+                padding: 20px;
+            }
+
+            .section-header {
+                flex-direction: column;
+                gap: 15px;
+                text-align: center;
+            }
+
+            .match-container {
+                grid-template-columns: 1fr;
+            }
+
+            .result-details {
+                grid-template-columns: 1fr;
+            }
+
+            .button-group {
+                flex-direction: column;
+            }
+
+            .btn-primary,
+            .btn-secondary {
+                max-width: none;
+            }
+        }
+
+        .error-message {
+            background: #fee2e2;
+            color: #dc2626;
+            padding: 12px 16px;
+            border-radius: 8px;
+            margin-bottom: 15px;
+            display: none;
+            border-left: 4px solid #dc2626;
+        }
+
+        .error-message.show {
+            display: block;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <h1>📚 NPTEL Engineering Teaching Quiz</h1>
+            <p>Effective Engineering Teaching in Practice</p>
+            <div class="participant-info" id="participantInfo">
+                <input type="text" id="participantName" placeholder="Enter your name" required>
+            </div>
+        </div>
+
+        <div class="content">
+            <!-- Start Screen -->
+            <div class="quiz-start" id="quizStart">
+                <h2 style="color: var(--text); font-size: 1.5em; margin-bottom: 20px;">Welcome to the Quiz!</h2>
+                <p style="color: var(--text-light); font-size: 1.05em; margin-bottom: 20px;">
+                    This quiz consists of <strong>50 questions</strong> divided into three sections:
+                </p>
+                <div style="background: var(--light); padding: 30px; border-radius: 12px; margin: 30px 0; text-align: left;">
+                    <div style="display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 20px; margin-bottom: 20px;">
+                        <div style="background: white; padding: 20px; border-radius: 10px; text-align: center;">
+                            <div style="font-size: 2em; font-weight: 700; color: var(--primary);">A</div>
+                            <div style="color: var(--text-light); margin: 10px 0;">20 Questions</div>
+                            <div style="font-size: 0.9em; color: var(--text-light);">Single Answer MCQ</div>
+                        </div>
+                        <div style="background: white; padding: 20px; border-radius: 10px; text-align: center;">
+                            <div style="font-size: 2em; font-weight: 700; color: var(--warning);">B</div>
+                            <div style="color: var(--text-light); margin: 10px 0;">15 Questions</div>
+                            <div style="font-size: 0.9em; color: var(--text-light);">Mixed Type</div>
+                        </div>
+                        <div style="background: white; padding: 20px; border-radius: 10px; text-align: center;">
+                            <div style="font-size: 2em; font-weight: 700; color: var(--success);">C</div>
+                            <div style="color: var(--text-light); margin: 10px 0;">15 Questions</div>
+                            <div style="font-size: 0.9em; color: var(--text-light);">Multiple & Matching</div>
+                        </div>
+                    </div>
+                </div>
+                <p style="color: var(--text-light); font-size: 0.95em; margin: 20px 0;">
+                    <strong>Total: 50 questions | Duration: Unlimited | Negative Marking: Applied</strong>
+                </p>
+                <button class="start-button" onclick="startQuiz()">Start Quiz</button>
+            </div>
+
+            <!-- Quiz Content -->
+            <div class="quiz-content" id="quizContent">
+                <div class="progress-text" id="progressText">Question 1 of 50</div>
+                <div class="progress-bar">
+                    <div class="progress-fill" id="progressFill"></div>
+                </div>
+
+                <div id="sectionsContainer"></div>
+
+                <div class="error-message" id="errorMessage"></div>
+
+                <div class="button-group">
+                    <button class="btn btn-secondary" onclick="previousQuestion()" id="prevBtn" style="display:none;">← Previous</button>
+                    <button class="btn btn-primary" onclick="nextQuestion()" id="nextBtn">Next →</button>
+                </div>
+            </div>
+
+            <!-- Results -->
+            <div class="results" id="results">
+                <h2>Quiz Completed!</h2>
+                <div class="score-display" id="scoreDisplay">0/0</div>
+                <div class="result-message" id="resultMessage"></div>
+                <div class="result-details">
+                    <div class="detail-item">
+                        <div class="detail-label">Total Questions</div>
+                        <div class="detail-value" id="totalQuestions">0</div>
+                    </div>
+                    <div class="detail-item">
+                        <div class="detail-label">Correct Answers</div>
+                        <div class="detail-value" id="correctAnswers">0</div>
+                    </div>
+                    <div class="detail-item">
+                        <div class="detail-label">Accuracy</div>
+                        <div class="detail-value" id="accuracy">0%</div>
+                    </div>
+                </div>
+                <button class="restart-button" onclick="restartQuiz()">Restart Quiz</button>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // Quiz Data
+        const quizData = {
+            sections: [
+                {
+                    id: 'A',
+                    title: 'Section A: Inexperienced vs Effective Teaching Approaches',
+                    type: 'Single Answer MCQ',
+                    questions: [
+                        {
+                            id: 1,
+                            text: "In the 'three approaches' demonstration of teaching the mass balance principle, which approach merely stated the principle without any background or context?",
+                            type: 'radio',
+                            options: [
+                                { text: 'Approach 2', value: 'A' },
+                                { text: 'Approach 3', value: 'B' },
+                                { text: 'Approach 1', value: 'C' },
+                                { text: 'None of the above', value: 'D' }
+                            ],
+                            correct: 'C',
+                            explanation: 'Approach 1 simply stated the mass balance equation directly without providing any motivation, background, or student-friendly context.'
+                        },
+                        {
+                            id: 2,
+                            text: "Which of the following is NOT a characteristic observed in an inexperienced engineering teacher?",
+                            type: 'radio',
+                            options: [
+                                { text: 'Lack of eye-contact with the audience', value: 'A' },
+                                { text: 'Beginning the lecture at the level of the student', value: 'B' },
+                                { text: 'Focus solely on self and content', value: 'C' },
+                                { text: 'Shifty, unsure demeanour', value: 'D' }
+                            ],
+                            correct: 'B',
+                            explanation: 'Beginning at the student\'s level of understanding is a hallmark of an experienced, effective teacher (Approach 3).'
+                        },
+                        {
+                            id: 3,
+                            text: "According to the course, in Approach 3 of teaching the mass balance principle, which pedagogical technique was prominently used?",
+                            type: 'radio',
+                            options: [
+                                { text: 'Direct derivation from first principles', value: 'A' },
+                                { text: 'Story-telling with a real-world tank-filling scenario', value: 'B' },
+                                { text: 'Showing a video of a bioreactor', value: 'C' },
+                                { text: 'Group discussion followed by quiz', value: 'D' }
+                            ],
+                            correct: 'B',
+                            explanation: 'Approach 3 used a story: filling a water tank, introducing leak, generation, and consumption step-by-step.'
+                        },
+                        {
+                            id: 4,
+                            text: "In an inexperienced teacher's approach, what is placed at the CORE of teaching?",
+                            type: 'radio',
+                            options: [
+                                { text: 'The learner (student)', value: 'A' },
+                                { text: 'The content', value: 'B' },
+                                { text: 'The assessment', value: 'C' },
+                                { text: 'The classroom environment', value: 'D' }
+                            ],
+                            correct: 'B',
+                            explanation: 'The course states: "The learner (student) is not at the core of an inexperienced teacher\'s approach. The content seems to be at the core."'
+                        },
+                        {
+                            id: 5,
+                            text: "The mass balance principle is ultimately based on which fundamental law of physics?",
+                            type: 'radio',
+                            options: [
+                                { text: 'Newton\'s second law of motion', value: 'A' },
+                                { text: 'The law of conservation of energy', value: 'B' },
+                                { text: 'The law of conservation of mass', value: 'C' },
+                                { text: 'Archimedes\' principle', value: 'D' }
+                            ],
+                            correct: 'C',
+                            explanation: 'The mass balance equation is based on the law of conservation of mass.'
+                        },
+                        {
+                            id: 6,
+                            text: "A traditional engineering lecture is best described as which model of instruction?",
+                            type: 'radio',
+                            options: [
+                                { text: 'Students discover concepts through guided exploration', value: 'A' },
+                                { text: '"I talk, you listen" with chalk board or equivalent aids', value: 'B' },
+                                { text: 'Peer teaching where students explain concepts to each other', value: 'C' },
+                                { text: 'Simulation-based learning using digital tools', value: 'D' }
+                            ],
+                            correct: 'B',
+                            explanation: 'As stated in the course, traditional lectures follow the "I talk, you listen" model.'
+                        },
+                        {
+                            id: 7,
+                            text: "The course advises lecturers to 'Never attempt to cover everything.' What should the focus be instead?",
+                            type: 'radio',
+                            options: [
+                                { text: 'Providing comprehensive notes that replace the textbook entirely', value: 'A' },
+                                { text: 'Key points and general themes as a scaffold for students\' independent reading', value: 'B' },
+                                { text: 'Spending maximum time on derivations to ensure rigour', value: 'C' },
+                                { text: 'Testing students at the end of every lecture', value: 'D' }
+                            ],
+                            correct: 'B',
+                            explanation: 'Key points and general themes provide a scaffold for students to build their structures through details they read on their own.'
+                        },
+                        {
+                            id: 8,
+                            text: "According to the course, what is a recommended way for a teacher to become aware of distracting mannerisms in class?",
+                            type: 'radio',
+                            options: [
+                                { text: 'Asking students directly after every lecture', value: 'A' },
+                                { text: 'Reviewing student feedback forms at the end of the semester', value: 'B' },
+                                { text: 'Video recording the class using a phone by a TA or senior student', value: 'C' },
+                                { text: 'Inviting a colleague to sit in and observe', value: 'D' }
+                            ],
+                            correct: 'C',
+                            explanation: 'The course explicitly states: "It is good to be aware of how one comes across in a class — video using a phone (TA/senior student)"'
+                        },
+                        {
+                            id: 9,
+                            text: "Taveggia and Hedley (1972) found which of the following regarding talented lecturers?",
+                            type: 'radio',
+                            options: [
+                                { text: 'Talented lecturers always outperform other teaching methods', value: 'A' },
+                                { text: 'A talented lecturer can significantly improve the learning of students in a class', value: 'B' },
+                                { text: 'Lecture quality has no measurable impact on student learning outcomes', value: 'C' },
+                                { text: 'Talented lecturers are more effective only in large classrooms', value: 'D' }
+                            ],
+                            correct: 'B',
+                            explanation: 'The course cites Taveggia and Hedley (1972): "A talented lecturer can significantly improve the learning of students in a class."'
+                        },
+                        {
+                            id: 10,
+                            text: "Regarding 'story-telling' in engineering lectures, which statement is NOT correct?",
+                            type: 'radio',
+                            options: [
+                                { text: 'Story-telling can be used in math-intensive courses', value: 'A' },
+                                { text: 'In a fairy tale, external and internal time are both present', value: 'B' },
+                                { text: 'In a scientific narrative, internal time (chronological story time) is always prominent', value: 'C' },
+                                { text: 'A coherent fairy tale presentation is cited as a model for scientific narration', value: 'D' }
+                            ],
+                            correct: 'C',
+                            explanation: 'The course explains that in scientific narrative, internal time is normally absent. A logical sequence replaces chrono-logic.'
+                        },
+                        {
+                            id: 11,
+                            text: "Bloom's revised taxonomy (cognitive domain) lists six levels. Which is the HIGHEST level?",
+                            type: 'radio',
+                            options: [
+                                { text: 'Evaluate', value: 'A' },
+                                { text: 'Analyze', value: 'B' },
+                                { text: 'Apply', value: 'C' },
+                                { text: 'Create', value: 'D' }
+                            ],
+                            correct: 'D',
+                            explanation: 'The revised Bloom\'s taxonomy lists: Remember → Understand → Apply → Analyze → Evaluate → Create, with "Create" at the top.'
+                        },
+                        {
+                            id: 12,
+                            text: "A question asking students 'Which of the following employs bioreactors?' tests which level of Bloom's cognitive taxonomy?",
+                            type: 'radio',
+                            options: [
+                                { text: 'Apply', value: 'A' },
+                                { text: 'Understand', value: 'B' },
+                                { text: 'Remember', value: 'C' },
+                                { text: 'Analyze', value: 'D' }
+                            ],
+                            correct: 'C',
+                            explanation: 'Questions requiring retrieval of factual knowledge (recognizing, recalling) operate at the "Remember" level.'
+                        },
+                        {
+                            id: 13,
+                            text: "In the Affective domain of Bloom's taxonomy, which is the HIGHEST level?",
+                            type: 'radio',
+                            options: [
+                                { text: 'Receiving and attending', value: 'A' },
+                                { text: 'Responding', value: 'B' },
+                                { text: 'Valuing', value: 'C' },
+                                { text: 'Being characterised by others with the value', value: 'D' }
+                            ],
+                            correct: 'D',
+                            explanation: 'The affective domain levels: Receiving → Responding → Valuing → Organizing → Characterization by a value (highest).'
+                        },
+                        {
+                            id: 14,
+                            text: "Regarding the Psychomotor domain of Bloom's taxonomy, which statement is NOT correct?",
+                            type: 'radio',
+                            options: [
+                                { text: 'It covers motor skills, hand-eye coordination, and speech', value: 'A' },
+                                { text: 'Laboratory and workshop skills belong to this domain', value: 'B' },
+                                { text: 'It is currently well-addressed in most engineering curricula', value: 'C' },
+                                { text: 'Engineering drawing is an example of psychomotor skill', value: 'D' }
+                            ],
+                            correct: 'C',
+                            explanation: 'The course explicitly notes that psychomotor skills "have slowly moved out of the curriculum" and are often neglected.'
+                        },
+                        {
+                            id: 15,
+                            text: "The Bloom's taxonomy was originally initiated by Benjamin S. Bloom in his role as:",
+                            type: 'radio',
+                            options: [
+                                { text: 'Dean of Engineering at MIT', value: 'A' },
+                                { text: 'Associate Director of the Board of Examinations, University of Chicago', value: 'B' },
+                                { text: 'Professor of Psychology at Harvard University', value: 'C' },
+                                { text: 'Director of the National Science Foundation', value: 'D' }
+                            ],
+                            correct: 'B',
+                            explanation: 'Benjamin S. Bloom was "Associate Director of the Board of Examinations of the University of Chicago" when he initiated the taxonomy idea.'
+                        },
+                        {
+                            id: 16,
+                            text: "What fraction of adults (approximately) are estimated to remain in the Concrete Operational stage of cognitive development, according to Piaget?",
+                            type: 'radio',
+                            options: [
+                                { text: '5–10%', value: 'A' },
+                                { text: '30–60%', value: 'B' },
+                                { text: '70–80%', value: 'C' },
+                                { text: 'Less than 5%', value: 'D' }
+                            ],
+                            correct: 'B',
+                            explanation: 'The course cites Piaget\'s theory: "30–60% of adults are also in the Concrete Operational phase."'
+                        },
+                        {
+                            id: 17,
+                            text: "Problem-Based Learning (PBL) is best described as:",
+                            type: 'radio',
+                            options: [
+                                { text: 'Solving textbook problems individually after a lecture', value: 'A' },
+                                { text: 'Presenting concepts and information in the context of solving a problem first', value: 'B' },
+                                { text: 'Using simulations to demonstrate engineering processes', value: 'C' },
+                                { text: 'Assigning problems only after completing the entire topic', value: 'D' }
+                            ],
+                            correct: 'B',
+                            explanation: 'PBL is defined as: "presenting concepts, information, etc., in the context of solving a problem. A guided discovery mode is turned on."'
+                        },
+                        {
+                            id: 18,
+                            text: "A Learning Outcome (LO) is best defined as:",
+                            type: 'radio',
+                            options: [
+                                { text: 'The teacher\'s lesson plan for a session', value: 'A' },
+                                { text: 'The teacher\'s expectation of learner performance in a course', value: 'B' },
+                                { text: 'A list of topics to be covered in a course', value: 'C' },
+                                { text: 'The grade distribution policy for a course', value: 'D' }
+                            ],
+                            correct: 'B',
+                            explanation: 'Learning outcome is defined as: "your expectation of the learner performance in a course."'
+                        },
+                        {
+                            id: 19,
+                            text: "The term 'constructive alignment' in Outcome-Based Teaching and Learning (OBTL) refers to:",
+                            type: 'radio',
+                            options: [
+                                { text: 'Aligning classroom seating to improve student visibility', value: 'A' },
+                                { text: 'Aligning Learning Outcomes, Teaching-Learning Activities, and Assessment Tasks', value: 'B' },
+                                { text: 'Matching the difficulty of exams to the level of the textbook', value: 'C' },
+                                { text: 'Coordinating multiple instructors teaching the same course', value: 'D' }
+                            ],
+                            correct: 'B',
+                            explanation: 'Constructive alignment involves aligning Learning Outcomes, Teaching-Learning Activities, and Assessment Tasks.'
+                        },
+                        {
+                            id: 20,
+                            text: "Which action verb is most appropriate for a Learning Outcome at the 'Applying' level of Bloom's taxonomy?",
+                            type: 'radio',
+                            options: [
+                                { text: 'Describe', value: 'A' },
+                                { text: 'Implement', value: 'B' },
+                                { text: 'Critique', value: 'C' },
+                                { text: 'Generate', value: 'D' }
+                            ],
+                            correct: 'B',
+                            explanation: '"Implement" and "Execute" are typical action verbs for the Apply level.'
+                        }
+                    ]
+                },
+                {
+                    id: 'B',
+                    title: 'Section B: Active Learning, Assessment & Cooperative Learning',
+                    type: 'Mixed Type',
+                    questions: [
+                        {
+                            id: 21,
+                            text: "Bonwell and Eison (1991) define active learning as:",
+                            type: 'radio',
+                            options: [
+                                { text: 'Any method that uses digital technology in the classroom', value: 'A' },
+                                { text: 'Anything that involves students in doing things and thinking about the things they are doing', value: 'B' },
+                                { text: 'Self-study and independent reading outside the classroom', value: 'C' },
+                                { text: 'Assessment methods that test higher-order thinking', value: 'D' }
+                            ],
+                            correct: 'B',
+                            explanation: 'Bonwell and Eison (1991) define active learning as: "Anything that involves students in doing things and thinking about the things they are doing."'
+                        },
+                        {
+                            id: 22,
+                            text: "In the 'Think–Pair–Share' active learning technique, what happens AFTER students individually work on a problem?",
+                            type: 'radio',
+                            options: [
+                                { text: 'The instructor immediately provides the solution', value: 'A' },
+                                { text: 'Students submit their answers online', value: 'B' },
+                                { text: 'Neighbours discuss solutions with each other and may revise their answers', value: 'C' },
+                                { text: 'Students take an individual quiz', value: 'D' }
+                            ],
+                            correct: 'C',
+                            explanation: 'The Think-Pair-Share sequence: individual work → neighbors discuss → revise based on discussion → instructor provides solution.'
+                        },
+                        {
+                            id: 23,
+                            text: "What is described as the 'best incentive' for undergraduate students to complete the pre-class first exposure in a flipped classroom?",
+                            type: 'radio',
+                            options: [
+                                { text: 'Personal commitment and intrinsic motivation', value: 'A' },
+                                { text: 'A short quiz at the beginning of class with marks contributing toward the grade', value: 'B' },
+                                { text: 'Peer pressure from classmates', value: 'C' },
+                                { text: 'Mandatory attendance checks', value: 'D' }
+                            ],
+                            correct: 'B',
+                            explanation: 'The course states: "Best incentive for UG classes seems to be marks, with a short quiz at the beginning of the class."'
+                        },
+                        {
+                            id: 24,
+                            text: "Regarding the flipped classroom technique, which statement is NOT correct?",
+                            type: 'radio',
+                            options: [
+                                { text: 'Lower levels of Bloom\'s taxonomy are addressed at home through pre-class material', value: 'A' },
+                                { text: 'Higher levels of Bloom\'s taxonomy are the focus of in-class activities', value: 'B' },
+                                { text: 'Many studies show significant increases in learning with flipped learning', value: 'C' },
+                                { text: 'Flipping the entire course all at once is the recommended starting approach', value: 'D' }
+                            ],
+                            correct: 'D',
+                            explanation: 'The course advises: "It may be advisable to flip a few suitable parts of the course first before becoming comfortable with the strategy."'
+                        },
+                        {
+                            id: 25,
+                            text: "In cooperative group learning, who benefits from peer interaction according to the course?",
+                            type: 'radio',
+                            options: [
+                                { text: 'Only the less-skilled group members', value: 'A' },
+                                { text: 'Only the more-skilled group members', value: 'B' },
+                                { text: 'Both less-skilled (improved abilities) and more-skilled (better clarity through explanation) members', value: 'C' },
+                                { text: 'Only the group leader', value: 'D' }
+                            ],
+                            correct: 'C',
+                            explanation: 'The course states that less-skilled members improve while more-skilled members gain clarity when explaining to others — both benefit.'
+                        },
+                        {
+                            id: 26,
+                            text: "Which type of assessment is primarily designed to 'provide information to learners to help them improve their learning'?",
+                            type: 'radio',
+                            options: [
+                                { text: 'Summative assessment', value: 'A' },
+                                { text: 'Formative assessment', value: 'B' },
+                                { text: 'Diagnostic assessment', value: 'C' },
+                                { text: 'Normative assessment', value: 'D' }
+                            ],
+                            correct: 'B',
+                            explanation: 'Formative assessment\'s primary focus is identifying areas needing improvement and providing feedback to support learning.'
+                        },
+                        {
+                            id: 27,
+                            text: "Which of the following is NOT an example of formative assessment?",
+                            type: 'radio',
+                            options: [
+                                { text: 'In-class observations of students\' non-verbal feedback', value: 'A' },
+                                { text: 'Reflection journals reviewed periodically during the semester', value: 'B' },
+                                { text: 'A high-stakes final examination at the end of the semester', value: 'C' },
+                                { text: 'Question-and-answer sessions both planned and spontaneous', value: 'D' }
+                            ],
+                            correct: 'C',
+                            explanation: 'A high-stakes final examination is a classic example of summative assessment, not formative.'
+                        },
+                        {
+                            id: 28,
+                            text: "A rubric in assessment is best described as:",
+                            type: 'radio',
+                            options: [
+                                { text: 'A standardised multiple-choice answer sheet', value: 'A' },
+                                { text: 'A marking/scoring guide with specific criteria and levels of achievement', value: 'B' },
+                                { text: 'A timetable for assessment activities in the course', value: 'C' },
+                                { text: 'A summary of grade distribution for the entire class', value: 'D' }
+                            ],
+                            correct: 'B',
+                            explanation: 'Rubrics are marking/scoring guides designed based on specific criteria with clearly described levels of achievements.'
+                        },
+                        {
+                            id: 29,
+                            text: "The primary purpose of assessment, according to the course, is to:",
+                            type: 'radio',
+                            options: [
+                                { text: 'Rank students relative to each other', value: 'A' },
+                                { text: 'Enable decision-makers (faculty and learners) to make better decisions', value: 'B' },
+                                { text: 'Satisfy requirements of the university administration', value: 'C' },
+                                { text: 'Provide data for national education statistics', value: 'D' }
+                            ],
+                            correct: 'B',
+                            explanation: 'The course states: "The primary purpose of assessment is to enable decision makers (i.e., faculty and learners) to make better decisions!"'
+                        },
+                        {
+                            id: 30,
+                            text: "Regarding the distinction between assessment and evaluation, which statement is NOT correct?",
+                            type: 'radio',
+                            options: [
+                                { text: 'Assessment provides feedback to modify teaching and learning activities', value: 'A' },
+                                { text: 'Evaluation compares learning against a standard or benchmark at the end', value: 'B' },
+                                { text: 'Assessment and evaluation are entirely synonymous terms in educational practice', value: 'C' },
+                                { text: 'Formative assessment is assessment for learning; summative is assessment of learning', value: 'D' }
+                            ],
+                            correct: 'C',
+                            explanation: 'Assessment and evaluation are related but distinct. They are NOT synonymous.'
+                        },
+                        {
+                            id: 31,
+                            text: "In the laboratory cooperative learning approach described, how are groups formed to ensure equity?",
+                            type: 'radio',
+                            options: [
+                                { text: 'Students self-select groups with no restrictions', value: 'A' },
+                                { text: 'Faculty assigns groups based on alphabetical order', value: 'B' },
+                                { text: 'Group average CGPA must equal class average CGPA ± 0.25', value: 'C' },
+                                { text: 'Groups are assigned randomly by a computer', value: 'D' }
+                            ],
+                            correct: 'C',
+                            explanation: 'The course states: "Group average CGPA = class average CGPA ± 0.25" to create mixed-ability groups.'
+                        },
+                        {
+                            id: 32,
+                            text: "For informal cooperative groups, which of the following is NOT a recommended characteristic of the group task?",
+                            type: 'radio',
+                            options: [
+                                { text: 'Intrinsically interesting', value: 'A' },
+                                { text: 'Have several possible solutions', value: 'B' },
+                                { text: 'Be easily solvable by any one individual alone', value: 'C' },
+                                { text: 'Allow all group members to contribute', value: 'D' }
+                            ],
+                            correct: 'C',
+                            explanation: 'Tasks should NOT be easily solvable by one individual, as that defeats cooperative learning.'
+                        },
+                        {
+                            id: 33,
+                            text: "In the 2-step lab exercise, when results are NOT as expected, what do students do in the SECOND session?",
+                            type: 'radio',
+                            options: [
+                                { text: 'Repeat the experiment with the correct setup', value: 'A' },
+                                { text: 'Formulate 3–4 hypotheses to explain unexpected results and do experiments to test them', value: 'B' },
+                                { text: 'Write a report explaining why the results failed', value: 'C' },
+                                { text: 'The instructor provides the correct result and students verify it', value: 'D' }
+                            ],
+                            correct: 'B',
+                            explanation: 'Students formulate 3–4 hypotheses and design experiments to prove/disprove them, developing higher-order analysis skills.'
+                        },
+                        {
+                            id: 34,
+                            text: "In the cooperative learning approach used for laboratory courses, who typically grades the lab reports?",
+                            type: 'radio',
+                            options: [
+                                { text: 'Teaching assistants using a standardized answer key', value: 'A' },
+                                { text: 'All group members collectively', value: 'B' },
+                                { text: 'A panel of three faculty members', value: 'C' },
+                                { text: 'Only the reports are graded; all group members usually receive the same grade', value: 'D' }
+                            ],
+                            correct: 'D',
+                            explanation: 'The course states: "Only the reports are graded and they determine the course grade (usually all in the group get the same grade)."'
+                        },
+                        {
+                            id: 35,
+                            text: "What purpose do laboratory courses serve beyond demonstrating established theory, according to Wankat and Oreovicz?",
+                            type: 'radio',
+                            options: [
+                                { text: 'Only to provide hands-on practice of theory learned in lectures', value: 'A' },
+                                { text: 'Developing skills including teamwork, communication, motivation, and independent learning', value: 'B' },
+                                { text: 'Primarily to train students in the use of specific instruments', value: 'C' },
+                                { text: 'To reduce the burden of theory courses on faculty', value: 'D' }
+                            ],
+                            correct: 'B',
+                            explanation: 'Wankat and Oreovicz list: Teamwork, communication, motivation, independent learning — far beyond just demonstrating theory.'
+                        }
+                    ]
+                },
+                {
+                    id: 'C',
+                    title: 'Section C: MBTI, Cognitive Theories & Learning Approaches',
+                    type: 'Multiple & Matching',
+                    questions: [
+                        {
+                            id: 36,
+                            text: "Which of the following are domains in Bloom's revised taxonomy? [Select ALL that apply]",
+                            type: 'checkbox',
+                            options: [
+                                { text: 'Cognitive (thinking) domain', value: 'A' },
+                                { text: 'Affective (feeling) domain', value: 'B' },
+                                { text: 'Kinaesthetic (movement) domain', value: 'C' },
+                                { text: 'Psychomotor (doing) domain', value: 'D' }
+                            ],
+                            correct: ['A', 'B', 'D'],
+                            explanation: 'Bloom\'s taxonomy addresses three domains: Cognitive, Affective, and Psychomotor. "Kinaesthetic" is not a canonical Bloom\'s domain.'
+                        },
+                        {
+                            id: 37,
+                            text: "Which of the following are stated in the course as ways to improve an engineering lecture? [Select ALL that apply]",
+                            type: 'checkbox',
+                            options: [
+                                { text: 'Inviting students to participate in the learning process', value: 'A' },
+                                { text: 'Making the rationale clear at relevant places', value: 'B' },
+                                { text: 'Assuming all students are at the same level as the teacher', value: 'C' },
+                                { text: 'Making the thought process at every stage transparent', value: 'D' }
+                            ],
+                            correct: ['A', 'B', 'D'],
+                            explanation: 'Improved lecture does NOT assume students are at the same level. It invites participation, clarifies rationale, and makes thought process transparent.'
+                        },
+                        {
+                            id: 38,
+                            text: "Which of the following can serve as a 'reliable means for first exposure' before class in the flipped classroom model? [Select ALL that apply]",
+                            type: 'checkbox',
+                            options: [
+                                { text: 'Self-made or standard video lectures (NPTEL, Khan Academy, MIT OCW)', value: 'A' },
+                                { text: 'Books with clearly identified chapter sections', value: 'B' },
+                                { text: 'In-class mini-lectures by the professor', value: 'C' },
+                                { text: 'Lecture material uploaded in advance', value: 'D' }
+                            ],
+                            correct: ['A', 'B', 'D'],
+                            explanation: 'In-class mini-lectures happen DURING class in the flipped model, not before class for first exposure.'
+                        },
+                        {
+                            id: 39,
+                            text: "Which of the following are listed in the course as examples of summative assessment? [Select ALL that apply]",
+                            type: 'checkbox',
+                            options: [
+                                { text: 'Final high-stakes examinations', value: 'A' },
+                                { text: 'Reflection journals reviewed periodically', value: 'B' },
+                                { text: 'Term papers (as final submission)', value: 'C' },
+                                { text: 'Portfolios at course completion', value: 'D' }
+                            ],
+                            correct: ['A', 'C', 'D'],
+                            explanation: 'Reflection journals reviewed periodically are formative. Final examinations, term papers (final draft), and completed portfolios are summative.'
+                        },
+                        {
+                            id: 40,
+                            text: "Which of the following statements about a 'Good–Robust Rubric' are correct? [Select ALL that apply]",
+                            type: 'checkbox',
+                            options: [
+                                { text: 'Gives clarity to students on what is expected based on level of achievement', value: 'A' },
+                                { text: 'Improves learning through detailed objective feedback', value: 'B' },
+                                { text: 'Increases the time a teacher needs to spend on grading', value: 'C' },
+                                { text: 'Provides consistency to marking', value: 'D' }
+                            ],
+                            correct: ['A', 'B', 'D'],
+                            explanation: 'A good rubric provides clarity, improves learning via feedback, and ensures consistency. It is actually time-saving, not time-increasing.'
+                        },
+                        {
+                            id: 41,
+                            text: "According to the course, which of the following are elements essential for group success in cooperative learning? [Select ALL that apply]",
+                            type: 'checkbox',
+                            options: [
+                                { text: 'Positive interdependence — for one to succeed, all should succeed', value: 'A' },
+                                { text: 'Individual accountability — no free rides', value: 'B' },
+                                { text: 'Group members must all have equal CGPA', value: 'C' },
+                                { text: 'Group processing and social skills', value: 'D' }
+                            ],
+                            correct: ['A', 'B', 'D'],
+                            explanation: 'Essential elements are positive interdependence, individual accountability, and social skills. Equal CGPA is NOT required; mixed-ability groups are intentional.'
+                        },
+                        {
+                            id: 42,
+                            text: "Which of the following are correct sub-categories under the 'Understand' level of Bloom's revised taxonomy? [Select ALL that apply]",
+                            type: 'checkbox',
+                            options: [
+                                { text: 'Interpreting', value: 'A' },
+                                { text: 'Summarizing', value: 'B' },
+                                { text: 'Executing', value: 'C' },
+                                { text: 'Comparing', value: 'D' }
+                            ],
+                            correct: ['A', 'B', 'D'],
+                            explanation: '"Executing" belongs to the "Apply" level. Interpreting, Summarizing, Classifying, Inferring, Comparing, and Explaining are sub-categories of "Understand."'
+                        },
+                        {
+                            id: 43,
+                            text: "Which of the following are stated benefits of writing explicit Learning Outcomes? [Select ALL that apply]",
+                            type: 'checkbox',
+                            options: [
+                                { text: 'Makes teacher\'s expectations explicit and assessable', value: 'A' },
+                                { text: 'Explains the cognitive challenges in a course', value: 'B' },
+                                { text: 'Guarantees that all students will pass the course', value: 'C' },
+                                { text: 'Provides a guideline for assessment design', value: 'D' }
+                            ],
+                            correct: ['A', 'B', 'D'],
+                            explanation: 'Writing LOs makes expectations explicit, explains cognitive challenges, and provides assessment guidelines. They do NOT guarantee student pass rates.'
+                        },
+                        {
+                            id: 44,
+                            text: "Which of the following are correctly stated about Piaget's Concrete Operational stage? [Select ALL that apply]",
+                            type: 'checkbox',
+                            options: [
+                                { text: 'Students in this stage can understand conservation of conserved quantities', value: 'A' },
+                                { text: 'Students can do higher mathematics by rote without necessarily understanding it', value: 'B' },
+                                { text: 'Abstract thought is fully developed at this stage', value: 'C' },
+                                { text: 'Approximately 30–60% of adults remain in this stage', value: 'D' }
+                            ],
+                            correct: ['A', 'B', 'D'],
+                            explanation: 'Concrete operational: understands logical reasons, conservation of quantities, but abstractions are difficult. Abstract thought develops only in Formal Operational.'
+                        },
+                        {
+                            id: 45,
+                            text: "Which of the following are correctly stated about Constructivism? [Select ALL that apply]",
+                            type: 'checkbox',
+                            options: [
+                                { text: 'The learner gives meaning to new information based on prior beliefs and experiences', value: 'A' },
+                                { text: 'The instructor is a facilitator of the knowledge construction process', value: 'B' },
+                                { text: 'New information is assimilated (matches existing schema) or accommodated (schema changes)', value: 'C' },
+                                { text: 'The teacher is the central transmitter of knowledge in constructivist classrooms', value: 'D' }
+                            ],
+                            correct: ['A', 'B', 'C'],
+                            explanation: 'Constructivism is learner-centered; the instructor facilitates. "Teacher as central transmitter" describes traditional approaches, NOT Constructivism.'
+                        },
+                        {
+                            id: 46,
+                            text: "Match Bloom's cognitive level with the correct action verb:",
+                            type: 'match',
+                            pairs: [
+                                { list1: 'P. Remember', list2: '1. Design', correct: '2' },
+                                { list1: 'Q. Apply', list2: '2. Recognise', correct: '3' },
+                                { list1: 'R. Evaluate', list2: '3. Execute', correct: '4' },
+                                { list1: 'S. Create', list2: '4. Critique', correct: '1' }
+                            ],
+                            explanation: 'Remember→Recognise; Apply→Execute; Evaluate→Critique; Create→Design'
+                        },
+                        {
+                            id: 47,
+                            text: "Match the teaching approach with its key feature:",
+                            type: 'match',
+                            pairs: [
+                                { list1: 'P. Approach 1', list2: '1. Story with tank-filling scenario', correct: '2' },
+                                { list1: 'Q. Approach 2', list2: '2. Principle stated directly without background', correct: '3' },
+                                { list1: 'R. Approach 3', list2: '3. Background provided; law of conservation explained', correct: '1' },
+                                { list1: 'S. Approach 1 & 2 combined', list2: '4. No concern for student level or communication', correct: '4' }
+                            ],
+                            explanation: 'Approach 1→stated directly; Approach 2→background provided; Approach 3→story; Both 1&2→no concern for communication'
+                        },
+                        {
+                            id: 48,
+                            text: "Match the Problem-Solving Taxonomy level with its description:",
+                            type: 'match',
+                            pairs: [
+                                { list1: 'P. Routines', list2: '1. Selection of the appropriate algorithm/method', correct: '2' },
+                                { list1: 'Q. Diagnosis', list2: '2. Algorithms implemented without major decision-making', correct: '4' },
+                                { list1: 'R. Strategy', list2: '3. Developing new routines; significant creativity needed', correct: '1' },
+                                { list1: 'S. Generation', list2: '4. Choice of multiple routines and their ordering', correct: '3' }
+                            ],
+                            explanation: 'Routines→algorithms without decisions; Diagnosis→selecting routine; Strategy→choosing/ordering routines; Generation→new routines'
+                        },
+                        {
+                            id: 49,
+                            text: "Match Piaget's developmental stage with its age-band:",
+                            type: 'match',
+                            pairs: [
+                                { list1: 'P. Sensorimotor', list2: '1. 2–7 years', correct: '2' },
+                                { list1: 'Q. Preoperational', list2: '2. Until 2 years', correct: '1' },
+                                { list1: 'R. Concrete Operational', list2: '3. 12 years and above', correct: '4' },
+                                { list1: 'S. Formal Operational', list2: '4. 7–12 years', correct: '3' }
+                            ],
+                            explanation: 'Sensorimotor→Until 2; Preoperational→2-7; Concrete→7-12; Formal→12+'
+                        },
+                        {
+                            id: 50,
+                            text: "Match Kolb's learning cycle stage with a suitable classroom activity:",
+                            type: 'match',
+                            pairs: [
+                                { list1: 'P. Concrete Experience', list2: '1. Lectures, analogies, model-building activities', correct: '3' },
+                                { list1: 'Q. Reflective Observation', list2: '2. Homework exercises, case studies, simulations', correct: '4' },
+                                { list1: 'R. Abstract Conceptualization', list2: '3. Assigned readings, laboratory work, problem sets', correct: '1' },
+                                { list1: 'S. Active Experimentation', list2: '4. Brainstorming, discussion, recording outcomes', correct: '2' }
+                            ],
+                            explanation: 'Concrete→lab work; Reflective→discussions/logs; Abstract→lectures; Active→homework/case studies'
+                        }
+                    ]
+                }
+            ]
+        };
+
+        // State Management
+        let state = {
+            currentQuestion: 0,
+            totalQuestions: 50,
+            answers: {},
+            started: false,
+            participantName: '',
+            quizCompleted: false
+        };
+
+        // Initialize Quiz
+        function initQuiz() {
+            renderQuestions();
+            state.totalQuestions = quizData.sections.reduce((sum, section) => sum + section.questions.length, 0);
+        }
+
+        // Render Questions
+        function renderQuestions() {
+            const container = document.getElementById('sectionsContainer');
+            container.innerHTML = '';
+
+            quizData.sections.forEach((section, sectionIndex) => {
+                const sectionDiv = document.createElement('div');
+                sectionDiv.className = 'section';
+                sectionDiv.id = `section-${section.id}`;
+
+                sectionDiv.innerHTML = `
+                    <div class="section-header">
+                        <div>
+                            <h2>Section ${section.id}</h2>
+                            <p style="margin-top: 8px; opacity: 0.9;">${section.title}</p>
+                        </div>
+                        <div class="section-info">${section.questions.length} Questions</div>
+                    </div>
+                `;
+
+                section.questions.forEach((question, qIndex) => {
+                    const questionDiv = document.createElement('div');
+                    questionDiv.className = 'question-block';
+                    questionDiv.id = `q-${getQuestionGlobalIndex(sectionIndex, qIndex)}`;
+
+                    let questionHTML = `
+                        <div>
+                            <span class="question-number">Q${getQuestionGlobalIndex(sectionIndex, qIndex) + 1}</span>
+                            <span class="question-type">${question.type === 'radio' ? 'Single Answer' : question.type === 'checkbox' ? 'Multiple Answer' : 'Match the Following'}</span>
+                        </div>
+                        <p class="question-text">${question.text}</p>
+                    `;
+
+                    if (question.type === 'match') {
+                        questionHTML += '<div class="match-container">';
+                        questionHTML += '<div class="match-column"><h4>Column A</h4>';
+                        
+                        question.pairs.forEach((pair, pIndex) => {
+                            const qId = `q${getQuestionGlobalIndex(sectionIndex, qIndex)}-pair${pIndex}`;
+                            questionHTML += `
+                                <div class="match-pair">
+                                    <div class="match-item">${pair.list1}</div>
+                                </div>
+                            `;
+                        });
+                        
+                        questionHTML += '</div><div class="match-column"><h4>Column B</h4>';
+                        
+                        question.pairs.forEach((pair, pIndex) => {
+                            const qId = `q${getQuestionGlobalIndex(sectionIndex, qIndex)}-pair${pIndex}`;
+                            const options = ['1', '2', '3', '4'];
+                            questionHTML += `
+                                <select class="match-item" id="${qId}" onchange="handleMatchChange('${qId}', 'q${getQuestionGlobalIndex(sectionIndex, qIndex)}', ${pIndex})">
+                                    <option value="">Select option...</option>
+                                    ${options.map(opt => `<option value="${opt}">${opt}. ${pair.list2.split('. ')[1]}</option>`).join('')}
+                                </select>
+                            `;
+                        });
+                        
+                        questionHTML += '</div></div>';
+                    } else {
+                        questionHTML += '<div class="options">';
+                        question.options.forEach((option) => {
+                            const inputType = question.type === 'radio' ? 'radio' : 'checkbox';
+                            const qId = `q${getQuestionGlobalIndex(sectionIndex, qIndex)}`;
+                            questionHTML += `
+                                <label class="option" onclick="this.querySelector('input').focus()">
+                                    <input type="${inputType}" name="${qId}" value="${option.value}" 
+                                        onchange="handleAnswer('${qId}', '${option.value}', '${inputType}')">
+                                    <span>${option.text}</span>
+                                </label>
+                            `;
+                        });
+                        questionHTML += '</div>';
+                    }
+
+                    questionDiv.innerHTML = questionHTML;
+                    sectionDiv.appendChild(questionDiv);
+                });
+
+                container.appendChild(sectionDiv);
+            });
+        }
+
+        // Get Global Question Index
+        function getQuestionGlobalIndex(sectionIndex, qIndex) {
+            let index = 0;
+            for (let i = 0; i < sectionIndex; i++) {
+                index += quizData.sections[i].questions.length;
+            }
+            return index + qIndex;
+        }
+
+        // Handle Answer
+        function handleAnswer(qId, value, type) {
+            if (type === 'radio') {
+                state.answers[qId] = value;
+            } else {
+                if (!state.answers[qId]) {
+                    state.answers[qId] = [];
+                }
+                const idx = state.answers[qId].indexOf(value);
+                if (idx > -1) {
+                    state.answers[qId].splice(idx, 1);
+                } else {
+                    state.answers[qId].push(value);
+                }
+            }
+            updateSelected();
+        }
+
+        // Handle Match Change
+        function handleMatchChange(pairId, qId, pIndex) {
+            if (!state.answers[qId]) {
+                state.answers[qId] = {};
+            }
+            state.answers[qId][pIndex] = document.getElementById(pairId).value;
+        }
+
+        // Update Selected State
+        function updateSelected() {
+            Object.keys(state.answers).forEach(qId => {
+                const answer = state.answers[qId];
+                if (typeof answer === 'string') {
+                    document.querySelectorAll(`input[name="${qId}"][value="${answer}"]`).forEach(input => {
+                        input.closest('.option').classList.add('selected');
+                    });
+                    document.querySelectorAll(`input[name="${qId}"]:not([value="${answer}"])`).forEach(input => {
+                        input.closest('.option').classList.remove('selected');
+                    });
+                } else if (Array.isArray(answer)) {
+                    document.querySelectorAll(`input[name="${qId}"]`).forEach(input => {
+                        if (answer.includes(input.value)) {
+                            input.closest('.option').classList.add('selected');
+                        } else {
+                            input.closest('.option').classList.remove('selected');
+                        }
+                    });
+                }
+            });
+        }
+
+        // Start Quiz
+        function startQuiz() {
+            const name = document.getElementById('participantName').value.trim();
+            if (!name) {
+                alert('Please enter your name to continue');
+                return;
+            }
+            state.participantName = name;
+            state.started = true;
+            document.getElementById('quizStart').classList.add('hidden');
+            document.getElementById('participantInfo').classList.add('show');
+            document.getElementById('quizContent').classList.add('active');
+            initQuiz();
+            updateProgress();
+        }
+
+        // Next Question
+        function nextQuestion() {
+            if (state.currentQuestion < state.totalQuestions - 1) {
+                state.currentQuestion++;
+                updateProgress();
+            } else {
+                submitQuiz();
+            }
+        }
+
+        // Previous Question
+        function previousQuestion() {
+            if (state.currentQuestion > 0) {
+                state.currentQuestion--;
+                updateProgress();
+            }
+        }
+
+        // Update Progress
+        function updateProgress() {
+            const filled = (state.currentQuestion + 1) / state.totalQuestions * 100;
+            document.getElementById('progressFill').style.width = filled + '%';
+            document.getElementById('progressText').textContent = `Question ${state.currentQuestion + 1} of ${state.totalQuestions}`;
+            
+            document.getElementById('prevBtn').style.display = state.currentQuestion > 0 ? 'block' : 'none';
+            document.getElementById('nextBtn').textContent = state.currentQuestion === state.totalQuestions - 1 ? 'Submit Quiz' : 'Next →';
+        }
+
+        // Submit Quiz
+        function submitQuiz() {
+            calculateResults();
+        }
+
+        // Calculate Results
+        function calculateResults() {
+            let correct = 0;
+            let totalQuestions = 0;
+
+            quizData.sections.forEach((section, sectionIndex) => {
+                section.questions.forEach((question, qIndex) => {
+                    const globalIndex = getQuestionGlobalIndex(sectionIndex, qIndex);
+                    const qId = `q${globalIndex}`;
+                    const userAnswer = state.answers[qId];
+
+                    totalQuestions++;
+
+                    if (question.type === 'match') {
+                        let allCorrect = true;
+                        if (userAnswer) {
+                            question.pairs.forEach((pair, pIndex) => {
+                                if (userAnswer[pIndex] !== String(pair.correct)) {
+                                    allCorrect = false;
+                                }
+                            });
+                        } else {
+                            allCorrect = false;
+                        }
+                        if (allCorrect) correct++;
+                    } else if (question.type === 'checkbox') {
+                        const correctAnswers = question.correct.sort().join(',');
+                        const userAnswers = (userAnswer || []).sort().join(',');
+                        if (correctAnswers === userAnswers) {
+                            correct++;
+                        }
+                    } else if (question.type === 'radio') {
+                        if (userAnswer === question.correct) {
+                            correct++;
+                        }
+                    }
+                });
+            });
+
+            displayResults(correct, totalQuestions);
+        }
+
+        // Display Results
+        function displayResults(correct, total) {
+            const percentage = Math.round((correct / total) * 100);
+            const scoreDisplay = document.getElementById('scoreDisplay');
+            const resultMessage = document.getElementById('resultMessage');
+            const resultDetails = document.getElementById('result-details');
+
+            scoreDisplay.textContent = `${correct}/${total}`;
+            
+            if (percentage >= 80) {
+                resultMessage.textContent = '🎉 Excellent Performance!';
+                resultMessage.style.color = '#16a34a';
+            } else if (percentage >= 60) {
+                resultMessage.textContent = '👍 Good Performance!';
+                resultMessage.style.color = '#ea580c';
+            } else if (percentage >= 40) {
+                resultMessage.textContent = '📚 Need More Practice!';
+                resultMessage.style.color = '#2563eb';
+            } else {
+                resultMessage.textContent = '💪 Keep Learning!';
+                resultMessage.style.color = '#dc2626';
+            }
+
+            document.getElementById('totalQuestions').textContent = total;
+            document.getElementById('correctAnswers').textContent = correct;
+            document.getElementById('accuracy').textContent = percentage + '%';
+
+            document.getElementById('quizContent').classList.remove('active');
+            document.getElementById('results').classList.add('show');
+        }
+
+        // Restart Quiz
+        function restartQuiz() {
+            state = {
+                currentQuestion: 0,
+                totalQuestions: 50,
+                answers: {},
+                started: false,
+                participantName: '',
+                quizCompleted: false
+            };
+            
+            document.getElementById('quizStart').classList.remove('hidden');
+            document.getElementById('participantInfo').classList.remove('show');
+            document.getElementById('quizContent').classList.remove('active');
+            document.getElementById('results').classList.remove('show');
+            document.getElementById('participantName').value = '';
+        }
+
+        // Initialize on Load
+        window.addEventListener('DOMContentLoaded', () => {
+            document.getElementById('participantInfo').classList.add('show');
+        });
+    </script>
+</body>
+</html>
